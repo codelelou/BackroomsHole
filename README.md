@@ -51,8 +51,12 @@ Unreal Engineのバージョンが異なっている場合は正常に動作し�
 Unreal Engineの公式サイトなどを参考にUnreal Engineでゲーム開発できるように環境構築を行います。  
 
 ## 2. 新規プロジェクトの作成
-「BackroomsHole」など任意のプロジェクト名で新規プロジェクトを作成します。  
-ここでは「D:\Works\UnrealProjects\BackroomsHole」がプロジェクトフォルダとして説明します。  
+
+「BackroomsHole」というプロジェクト名で新規プロジェクトを作成します。  
+異なるプロジェクト名の場合はパッケージ化（配布用のEXEファイルなどの作成）などで設定ファイルの書き換えなどが必要になる場合があるかもしれません。
+
+ここではプロジェクトフォルダが「D:\Works\UnrealProjects\BackroomsHole」に作成されたものとして説明します。  
+
 https://docs.unrealengine.com/5.1/ja/creating-a-new-project-in-unreal-engine/  
 
 作成するプロジェクト設定は「Games」の「Blank」で、「Project Defaults」は次のようにします。  
@@ -138,3 +142,18 @@ Content\BackroomsHole\Blurprint\GameMode\Yndrr_BP_GameMode
 Content\BackroomsHole\Blurprint\GameMode\Yndrr_BP_GameMode_Gameplay  
 
 ゲーム本編で使用するGameModeで、キャラクターなどを指定しています。  
+
+# パッケージ化
+
+パッケージ化のターゲットとなるプラットフォームによって、Unreal Engine以外にもインストールが必要なものがあるかもしれません。  
+パッケージ化のための環境構築や手順は公式サイトやその他の解説等を参考にしてください。  
+
+こちらではWindows向けのパッケージ化しか行っていないため、他のプラットフォーム向けのパッケージ化が可能かどうかすら不明です。
+
+初回パッケージ化時やパッケージ化設定によってはコンパイルに何時間も掛かる場合があるかもしれません。  
+
+## プロジェクト名が「BackroomsHole」以外でのパッケージ化
+
+プロジェクト名が「BackroomsHole」以外の場合にパッケージ化する際に、「WARNING」が表示されることを確認しています。  
+
+Config\Tags\Backrooms.iniファイルの「+AllowedConfigFiles=BackroomsHole/Config/Tags/Backrooms.ini」の行の「BackroomsHole」を現在のプロジェクト名に書き換えれば大丈夫だと思います（WARNINGのメッセージで同様の指示があると思います）。  
