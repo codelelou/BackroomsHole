@@ -129,11 +129,11 @@ https://docs.unrealengine.com/5.1/ja/creating-a-new-project-in-unreal-engine/
 
 作成するプロジェクト設定は「Games」の「Blank」で、「Project Defaults」は次のようにします。  
 
-* Blurprint  
-* Target Platform: Desktop  
-* Quality Preset: Maximum  
-* Starter Content: オフ（チェックなし）  
-* Raytracing: オン（チェックあり）  
+*Blurprint  
+*Target Platform: Desktop  
+*Quality Preset: Maximum  
+*Starter Content: オフ（チェックなし）  
+*Raytracing: オン（チェックあり）  
 
 作成後にそのプロジェクトをUnreal Engineのエディタで開いている場合は閉じます。  
 
@@ -145,9 +145,9 @@ GameInstanceやGameModeなどに依存しているため、既存のプロジェ
 
 プロジェクトフォルダの直下にConfigフォルダとContentフォルダとPlatformsフォルダ（Platformsフォルダのみプロジェクトの設定などによっては作成されていない場合があります）があると思いますので、ダウンロードしたソースコードの同名フォルダをドラッグ＆ドロップなどで上書き保存します。  
 
-* D:\Works\UnrealProjects\BackroomsHole\Config  
-* D:\Works\UnrealProjects\BackroomsHole\Content  
-* D:\Works\UnrealProjects\BackroomsHole\Platforms  
+*D:\Works\UnrealProjects\BackroomsHole\Config  
+*D:\Works\UnrealProjects\BackroomsHole\Content  
+*D:\Works\UnrealProjects\BackroomsHole\Platforms  
 
 ## 4. プロジェクトをUnreal Engineエディタで開く
 
@@ -244,13 +244,22 @@ Unreal Engineの仕様として、GameInstanceはゲームの起動時に実行�
 
 Content\BackroomsHole\Blurprint\GameMode\Yndrr_BP_GameMode  
 
-ゲーム固有の基本となるGameModeで、起動画面とクリア画面で使っています。  
+このゲーム固有の基本となるGameModeで、起動画面とクリア画面で使っています。  
+
+これらはUI（UserWidget）表示用の画面のため、キャラクターが不要なので「Defalt Pawn Class」を「None」にしています。  
+他にも「HUD Class」も使わないため「None」にしています。  
+
+ただし「Player State Class」は一部の処理で必要になる実装にしているため「Yndrr_BP_PlayerState」（Content/BackroomsHole/Blurprint/PlayerState/Yndrr_BP_PlayerState）を指定しています。  
 
 ### Yndrr_BP_GameMode_Gameplay
 
 Content\BackroomsHole\Blurprint\GameMode\Yndrr_BP_GameMode_Gameplay  
 
-ゲーム本編で使用するGameModeで、キャラクターなどを指定しています。  
+このゲームの本編で使用するGameModeで、キャラクターなどを指定しています。  
+
+ゲーム本編では「Player Controller Class」「Player State Class」「HUD」「Default Pawn Class」それぞれこのゲーム用のものを指定います。  
+
+このゲームを雛形として別のゲームを作るような時にキャラクターを変更する場合は、ここの「Default Pawn Class」に使用するキャラクターのクラスを指定します。  
 
 ## ポーズメニュー（一時停止）
 
@@ -283,6 +292,148 @@ Gameplay（ゲーム本編）のセーブデータに関しては複数のセー
 
 オートセーブも無効にする場合は、ロードメニュー（ Content/BackroomsHole/Blurprint/Widget/UserWidget/GameplaySaveGame/Yndrr_WBP_GameplaySaveGame_Load ）からコンテニュー（オートセーブスロット）ボタンを削除します。  
 コンテニューボタンはグラフ（イベントグラフ）で使用しているため、イベントグラフ内でそのボタン（変数）を使用している箇所も取り除く必要があります。  
+
+# キャラクター
+
+Content/BackroomsHole/Blurprint/Character/Yndrr_BP_Character_FirstPerson  
+
+ソースコードを公開するため著作権・ライセンスも考慮して、キャラクターの3Dモデルやアニメーションが不要なファースト・パーソン・キャラクター（FPS視点）で実装しました。  
+
+またキャラクターはゲーム毎に変更する可能性も高いと思われるため、キャラクターが確定していない段階でも開発を進めやすいように、キャラクターの操作やステータスなどはPlayerControllerやPlayerStateなどで行う実装にしています。  
+キャラクターは見た目やアニメーションなどを主に実装するだけで、それ以外の操作やステータスなどはキャラクター以外で実装するイメージです。  
+
+キャラクターを変更はGameModeの「Default Pawn Class」で行えます。  
+キャラクターの移動など基本的な動作は、キャラクターを変更するだけでそのままある程度行えることがあります。  
+
+## キャラクターの操作受付（Enhanced Input）について
+
+このゲームプログラムではキャラクターの操作受付をPlayerController側で実装しています。  
+
+他のゲーム開発でも流用することを前提に想定していることもあり、ゲーム毎にキャラクターは変更する可能性が高いとの判断から、変更する可能性が低めのPlayerController側で実装する方針にしました。  
+
+そのため、基本的にはキャラクターではイベント・関数を実装しません。  
+
+もし変更するキャラクターにイベント・関数などを実装済みの場合は、次のキャラクターの操作の箇所を削除します。  
+
+* カメラ（AddControllerYawInput/AddControllerPitchInput）  
+* 移動（AddMovementInput）  
+* ジャンプ（Jump/StopJump）
+* しゃがみ（Crouch/UnCrouch）  
+* スプリント（ダッシュの処理は実装方法がキャラクターによって大きく異なります）  
+
+例えばUnreal Engine標準のThirdPersonCharacterの場合であればキャラクターの操作の実装しかないので、イベントグラフに実装されているイベントをまとめて削除できます。  
+削除が不安な場合は、各イベントノードの右上のノードリンクを切断します。  
+
+なおキャラクターの実装によってはカメラや移動などに標準のノードを使っていないことがあり、その場合はそのイベントがキャラクター側からはコントローラー操作では実行されないように適当な名前でカスタムイベントとして実行できるようにします。  
+そしてPlayerController側でカメラや移動の操作時に、そのカスタムイベントを実行するようにオーバーライドします（このオーバーライドをしないと標準のノードを使うので、想定される本来のキャラクターの動作が行われない場合があります））。  
+
+# コントローラー
+
+Content/BackroomsHole/Blurprint/Controller/Yndrr_BP_PlayerController  
+
+キャラクターの操作から一時停止やインベントリの操作など、ゲームパッド・キーボード・マウスの入力の受付は基本的にこのコントローラーで実装しています。  
+
+入力受付はUnreal Engine標準のEnhanced Inputを使用しています。  
+Content/LelouFW/Input  
+
+UIなどで操作に対応するボタンをアイコンで表示していますが、これはUnreal Engine標準のCommon Input Settingsで実装しています。  
+Enhanced Inputの入力を変更する場合は、このアイコン設定もそれに合わせて変更する必要があるかもしれません。  
+Content/LelouFW/Blurprint/Widget/CommonUI/LelouFW_CommonUI_CommonInputBaseControllerData_MouseAndKeyboard  
+Content/LelouFW/Blurprint/Widget/CommonUI/LelouFW_CommonUI_CommonInputBaseControllerData_Gamepad  
+
+なおエンドロール（ Content/BackroomsHole/Blurprint/Widget/UserWidget/Yndrr_WBP_Ending ）のスキップ機能はこのコントローラーでの入力受付を行わず、UserWidget側で入力受付を行っています。  
+これはスキップ機能のサンプルとして流用しやすいように依存関係を極力持たせないようにしたためです。  
+
+# HUD
+
+Content/BackroomsHole/Blurprint/HUD/Yndrr_BP_HUD  
+
+HUDは次のUserWidgetを扱っています。
+
+* ダイアログ  
+* 通知  
+* アクション  
+* 一時停止  
+* ActorViewer  
+* インベントリ  
+* ズームイベント  
+* レティクル  
+* ズーム中テキスト  
+* セーブメニュー  
+
+HUDの解釈・定義・方針などによってはHUDで管理すべきでないものありますが、現時点では開発のしやすさなどを考えて色々なクラスからアクセスする可能性が高いUserWidgetをHUDで扱う実装にしています。  
+
+# GameState
+
+このゲームでは使用していません。  
+
+# PlayerState
+
+キャラクターの情報も含め、ゲームの進行状況などをPlayerStateで管理する実装にしています。  
+
+# 環境設定
+
+Content/BackroomsHole/Blurprint/Settings/Yndrr_WBP_Settings  
+
+環境設定には次の項目があります。  
+
+* 言語  
+* カメラの揺れ  
+* 画面中心点（クロスヘア・レティクル）  
+* 画面モード／解像度  
+* フレームレート上限  
+* 垂直同期  
+* 画質  
+* 明るさ  
+* モーションブラー  
+* BGM音量  
+* 効果音音量  
+* ボイス音量  
+* カメラ感度  
+* カメラ入力方向（水平）  
+* カメラ入力方向（垂直）  
+* コントローラー振動  
+
+言語や画質に関連する項目は基本的にUnreal Engineの標準機能として自動的にセーブされています。  
+それ以外の項目は環境設定用SaveGame（ Content/BackroomsHole/Blurprint/SaveGame/Settings/Yndrr_BP_SaveGame_Settings ）に保存しています。  
+
+ゲームによっては不要な項目もあるでしょうから、その場合はその項目を削除してください。  
+削除しただけだとコンパイル時にエラーが出ると思いますが、グラフ（イベントグラフ）からもその項目を使用している箇所を削除します。  
+なお削除した項目が環境設定用SaveGameにある場合でも、そのSaveGameまで修正（該当する項目の削除）しなくても問題ありません。  
+
+このゲームのサウンドは効果音のみでBGMとボイスはありませんが、サンプルとしてそのまま項目を残して実装しています。  
+
+## レベル・ヘルパー・アクター
+
+Content/BackroomsHole/Blurprint/Actor/LevelHelper/Yndrr_Actor_LevelHelper  
+
+レベル・ヘルパー・アクターは原則、1つのレベルに1つを配置します。  
+何かを表示するものではないため、場所はどこでも良いです。  
+
+このアクターでは主に画質・ポストプロセス・明るさを管理をします。  
+そのため、そのレベルにはポストプロセスボリュームも1つ以上配置します。  
+
+また特定のレベル用に処理を行いたい場合はそれ用にレベル・ヘルパー・アクターの子クラスを実装し、その子クラスでレベルに配置します。  
+
+これらの処理はレベルブループリントで実装するのが自然かもしれませんが、レベルブループリントは継承できないようでどのレベルでも共通に行うような処理の実装が不便のため、それ用のアクタークラスで対応する実装にしました。  
+
+### 画質設定: QualityMapping（マップ型＜Integer⇒LelouFW_Struct_Settings_Quality＞）
+
+レベル・ヘルパー・アクターのQualityMapping変数で画質の調整ができます。  
+
+Integer型をキーとするマップ（連想配列）で、このキーは環境変数の画質と次のように紐づいています。  
+
+* 1 = 最低画質  
+* 3 = 低画質  
+* 5 = 標準
+* 7 = 高画質  
+* 9 = 最高画質  
+
+既定値は全体的に画質重視に設定しており、最低画質でも負荷は比較的高いと思います。  
+画質より快適さを優先する場合は、必要に応じて画質設定を調整してください。  
+
+設定項目はUnreal Engine標準のゲームのユーザー設定（GameUserSettings）で指定できる主な項目とポストプロセス設定です。  
+Content/LelouFW/Blurprint/Actor/LevelHelper/LelouFW_Struct_Settings_Quality  
 
 ## カスタムアクター
 
@@ -539,8 +690,18 @@ Content/BackroomsHole/Blurprint/Inventory/Yndrr_WBP_Inventory
 
 ### インベントリの使い方
 
-インベントリに追加するアクターのAddInventoryイベントを実行することで、そのアクターがインベントリに追加されます（追加されるとそのアクターはレベル上に表示されなくなります）。  
+設定としてインベントリに追加可能なカスタムアクターでは2つの事を行います。  
+
+1つ目にAddInventoryGameplayTag変数（GameplayTag型）にインベントリ追加用の一意の識別用フラグを設定します。  
+
+2つ目にインターフェースとしてContent/BackroomsHole/Blurprint/Actor/Yndrr_BPI_Actor_Inventory_Use_Interface を設定します。  
+親クラス側で既に設定している場合は子クラス側での設定は不要です。  
+
+これら2つを設定を行っておくことで、セーブロード時に自動的にインベントリ内のアイテムが復元されるようになります。  
+
+そしてインベントリに追加するカスタムアクターのAddInventoryイベントを実行することで、そのアクターがインベントリに追加されます（追加されるとそのアクターはレベル上に表示されなくなります）。  
 レベルブループリントや他のアクターなどからそのアクターをインベントリに追加する場合は、そのアクターのインターフェースイベントの「AddInventoryAtActor」を実行することで追加されます（このインターフェースイベントはAddInventoryイベントのラッパーイベントになっており、実質的に同じイベントです）。  
+
 
 ## 通知
 
@@ -635,6 +796,70 @@ DoOnceノードを使うことで比較的容易に1回だけ実行する処理�
 第2引数のReverse（Boolean型）ではドアを開けるのか閉めるのかの切替を行います。閉める場合にTrueを指定することになるはずですが、ドアの作りによっては開ける時にTrueにする必要があるかもしれません。  
 
 スライドタイプの開閉処理はまだ単純ですが、ゲーム内の引き出し（ Content/BackroomsHole/Blurprint/Actor/Furniture/Yndrr_BP_Actor_Drawer_A ）を参考にしてください。  
+
+### ドアの設定
+
+ドアの基底アクター（ Content/BackroomsHole/Blurprint/Actor/Door/Yndrr_BP_Actor_Door_Base ）を継承してドアアクターを作ることで、ある程度の処理を変数の変更だけでドアを実装することができます。  
+
+サンプルとして作っているドアはどれも、このドアの基底クラスを継承しています。  
+
+鍵の識別にも対応しており、インベントリ内の鍵アクターインターフェース（ Content/BackroomsHole/Blurprint/Actor/Key/Yndrr_BPI_Actor_Key_Interface ）を実装しているアクターのKeyTags（配列＜GameplayTag型＞）を調べます。  
+
+#### ドアの設定: OpenGameplayTag（GameplayTag型）
+
+ドアを開ける用のGameplayTagを指定します。  
+
+このGameplayTagは特定のドアを開ける専用となるように一意のものを指定します。  
+他ドアや他のアクションと重複しているよう場合は、このドアを開く時に他のドアが一緒に開くなどの原因になります。  
+
+#### ドアの設定: CloseGameplayTag（GameplayTag型）
+
+ドアを閉める用のGameplayTagを指定します。  
+
+このGameplayTagも一意になるように指定します。
+
+#### ドアの設定: UnlockGameplayTag（GameplayTag型）
+
+ドアの解錠用のGameplayTagを指定します。  
+
+このGameplayTagも一意になるように指定します。
+
+#### ドアの設定: LockGameplayTag（GameplayTag型）
+
+ドアの施錠用のGameplayTagを指定します。  
+
+このGameplayTagも一意になるように指定します。
+
+#### ドアの設定: KeyTags（配列＜GameplayTag型＞）
+
+個々のドアに対応する鍵を識別するためのGameplayTagの配列（リスト）で、そのドア専用の鍵の他にマスターキーにも対応させるといった感じで複数指定できます。  
+
+この値が空の時はドアの解錠・施錠に鍵が不要になります（トイレのドアのように鍵が不要なタイプのドア用）。  
+
+#### ドアの設定: Lock（Boolean型）
+
+この変数がTrueの時、ドアは施錠されている状態になります。  
+
+#### ドアの設定: AutoUnlock（Boolean型）
+
+この変数がTrueの場合、ドアを開ける時に施錠されていても、鍵が不要かそのドア用の鍵を持っている場合は自動で解錠した上でドアを開けます。  
+
+逆にこの変数がFalseの場合は、鍵の有無にかかわらず施錠されていると、ドアを開こうとしても施錠されたままで開くことができません。  
+
+ゲームの仕様によってユーザー自身で解錠させるかどうかを設定できます。  
+
+#### ドアの設定: CanLock（Boolean型）
+
+この変数がTrueの場合、ドアが閉まっている時に、鍵が不要かそのドア用の鍵を持っている場合にドアを施錠することできます。  
+
+### 鍵アクター
+
+鍵の基底クラス（Content/BackroomsHole/Blurprint/Actor/Key/Yndrr_BP_Actor_Key_Base）を継承して鍵アクターを作ります。  
+
+そしてKeyTags変数（配列＜GameplayTag型＞）にその鍵の識別用のGameplayTagを指定します。  
+複数指定可能なので、1つの鍵で複数のドアに対応させるといったことが可能です。  
+
+ドアアクターと鍵アクターのKeyTags変数で同一のものがある場合は、そのドアと鍵が対応していることを意味します。  
 
 ## コントローラー振動
 
