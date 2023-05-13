@@ -1,4 +1,0 @@
- - 02E502344DDE4CA4B1D0A2A739599AF6 
-	/Game/BackroomsHole/Blurprint/Widget/UserWidget/TopMenu/Yndrr_WBP_TopMenu.Default__Yndrr_WBP_TopMenu_C.Version - "Ver.01.01.00" 
-	/Game/BackroomsHole/Blurprint/Widget/UserWidget/TopMenu/Yndrr_WBP_TopMenu.Yndrr_WBP_TopMenu_C:WidgetTree.VersionContainer.Text - "Ver.01.00.00" 
-
